@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<robot name="eyebrows">
+  <joint name="servo1_joint" type="revolute">
+    <limit lower="83" upper="124" />
+  </joint>
+  <joint name="servo2_joint" type="revolute">
+    <limit lower="72" upper="132" />
+  </joint>
+  <joint name="servo3_joint" type="revolute">
+    <limit lower="0" upper="180" />
+  </joint>
+</robot>
