@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+import tkinter as tk
+from tkinter import ttk
+import rospy
+from sensor_msgs.msg import JointState
+
+class JointControlGUI:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Joint Control GUI")
+        
+        # Initialize joint positions dictionary
+        self.joint_positions = {0: 100, 1: 80, 2: 45}
+
+        # Create sliders for each joint
+        self.sliders = {}
+        self.create_slider("Joint1", 0, 83, 124)
+        self.create_slider("Joint2", 1, 72, 132)
+        self.create_slider("Joint3", 2, 0, 100)
+        
+        # Create buttons
+        self.create_button("Normal", [100, 80, 45])
+        self.create_button("Happy", [83, 90, 30])
+        self.create_button("Sad", [120, 130, 10])
+        self.create_button("Surprised", [83, 90, 30])
+        self.create_button("Angry", [115, 110, 85])
+
+        # ROS node and publisher
+        rospy.init_node('joint_control_gui', anonymous=True)
+        self.pub = rospy.Publisher('/joint_states', JointState, queue_size=10)
+
+    def create_slider(self, name, index, from_, to):
+        frame = ttk.Frame(self.master)
+        frame.pack(padx=10, pady=5)
+        
+        label = ttk.Label(frame, text=name)
+        label.pack(side=tk.LEFT)
+        
+        slider_frame = ttk.Frame(frame)
+        slider_frame.pack(side=tk.LEFT)
+
+        slider = tk.Scale(slider_frame, from_=from_, to=to, orient=tk.HORIZONTAL, command=lambda val, idx=index: self.update_joint_position(idx, val))
+        slider.pack(side=tk.LEFT)
+        
+        # Set slider length
+        slider.config(length=200)
+        
+        # Display minimum, maximum, and current value labels
+        min_label = tk.Label(slider_frame, text=str(from_))
+        min_label.pack(side=tk.LEFT)
+        
+        max_label = tk.Label(slider_frame, text=str(to))
+        max_label.pack(side=tk.LEFT)
+        
+        value_label = tk.Label(slider_frame, text=str((from_ + to) / 2))
+        value_label.pack(side=tk.LEFT)
+
+        self.joint_positions[index] = (from_ + to) / 2  # Initialize slider value
+        self.sliders[index] = slider
+
+    def update_joint_position(self, index, value):
+        value = float(value)
+        self.joint_positions[index] = value
+        slider = self.sliders[index]
+        slider.set(value)  # Update slider position
+        slider_frame = slider.master
+        value_label = slider_frame.pack_slaves()[-1]  # Get the last label widget
+        value_label.config(text=str(value))  # Update value label
+        self.publish_joint_state()
+
+    def create_button(self, name, positions):
+        button = ttk.Button(self.master, text=name, command=lambda pos=positions: self.set_joint_positions(pos))
+        button.pack(pady=5)
+
+    def set_joint_positions(self, positions):
+        for index, position in enumerate(positions):
+            self.joint_positions[index] = position
+            slider = self.sliders[index]
+            slider.set(position)  # Update slider position
+            slider_frame = slider.master
+            value_label = slider_frame.pack_slaves()[-1]  # Get the last label widget
+            value_label.config(text=str(position))  # Update value label
+        self.publish_joint_state()
+
+    def publish_joint_state(self):
+        js = JointState()
+        js.name = ["servo1_joint", "servo2_joint", "servo3_joint"]
+        js.position = [self.joint_positions[i] for i in range(3)]
+        js.header.stamp = rospy.Time.now()
+        self.pub.publish(js)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = JointControlGUI(root)
+    root.mainloop()

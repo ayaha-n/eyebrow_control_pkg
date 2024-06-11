@@ -1,4 +1,4 @@
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find eyebrow_control)/urdf/eyebrow.urdf'" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find eyebrow_control_pkg)/urdf/eyebrow.urdf'" />
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 </launch>

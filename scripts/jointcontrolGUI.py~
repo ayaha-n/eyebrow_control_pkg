@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+
+import tkinter as tk
+from tkinter import ttk
+import rospy
+from sensor_msgs.msg import JointState
+
+class JointControlGUI:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Joint Control GUI")
+        
+        # Initialize joint positions dictionary
+        self.joint_positions = {}
+
+        # Create sliders for each joint
+        self.create_slider("Joint1", 0)
+        self.create_slider("Joint2", 1)
+        self.create_slider("Joint3", 2)
+        
+        # Create buttons
+        self.create_button("Pose 1", [100, 80, 45])
+        self.create_button("Pose 2", [83, 90, 20])
+        self.create_button("Pose 3", [120, 130, 10])
+        self.create_button("Pose 4", [83, 90, 30])
+        self.create_button("Pose 5", [115, 110, 85])
+
+        # ROS node and publisher
+        rospy.init_node('joint_control_gui', anonymous=True)
+        self.pub = rospy.Publisher('/joint_states', JointState, queue_size=10)
+
+    def create_slider(self, name, index):
+        frame = ttk.Frame(self.master)
+        frame.pack(padx=10, pady=5)
+        
+        label = ttk.Label(frame, text=name)
+        label.pack(side=tk.LEFT)
+        
+        slider = ttk.Scale(frame, from_=0, to=180, orient=tk.HORIZONTAL, command=lambda val, idx=index: self.update_joint_position(idx, val))
+        slider.pack(side=tk.LEFT)
+        
+        self.joint_positions[index] = 90  # Initialize slider value
+
+    def update_joint_position(self, index, value):
+        self.joint_positions[index] = float(value)
+        self.publish_joint_state()
+
+    def create_button(self, name, positions):
+        button = ttk.Button(self.master, text=name, command=lambda pos=positions: self.set_joint_positions(pos))
+        button.pack(pady=5)
+
+    def set_joint_positions(self, positions):
+        for index, position in enumerate(positions):
+            self.joint_positions[index] = position
+        self.publish_joint_state()
+
+    def publish_joint_state(self):
+        js = JointState()
+        js.name = ["servo1_joint", "servo2_joint", "servo3_joint"]
+        js.position = [self.joint_positions[i] for i in range(3)]
+        js.header.stamp = rospy.Time.now()
+        self.pub.publish(js)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = JointControlGUI(root)
+    root.mainloop()
