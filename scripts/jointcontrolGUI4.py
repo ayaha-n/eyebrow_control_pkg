@@ -21,15 +21,13 @@ class JointControlGUI:
         
         # Create buttons
         self.create_button("Normal", [100, 80, 45])
-        #self.create_button("Happy", [83, 90, 30])
-        self.create_button("Happy", [83, 90, 20])
+        self.create_button("Happy", [83, 90, 30])
         self.create_button("Sad", [120, 130, 10])
         self.create_button("Surprised", [83, 90, 30])
-        #self.create_button("Surprised2", [83, 90, 47])
         self.create_button("Angry", [115, 110, 85])
 
         # ROS node and publisher
-        self.pub = rospy.Publisher('/joint_states', JointState, queue_size=1)
+        self.pub = rospy.Publisher('/joint_states', JointState, queue_size=10)
 
     def create_slider(self, name, index, from_, to):
         frame = ttk.Frame(self.master)
@@ -99,4 +97,13 @@ def run_gui():
 
 if __name__ == "__main__":
     rospy.init_node('joint_control_gui', anonymous=True)
-    threading.Thread(target=run_gui).start()
+    
+    # Use a separate thread for GUI
+    gui_thread = threading.Thread(target=run_gui)
+    gui_thread.start()
+
+    # ROS loop in the main thread
+    rate = rospy.Rate(3)  # 1 Hz
+    while not rospy.is_shutdown():
+        rospy.loginfo("ROS is running")
+        rate.sleep()
