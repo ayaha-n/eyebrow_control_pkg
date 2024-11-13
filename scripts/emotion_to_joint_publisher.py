@@ -33,9 +33,11 @@ def eyebrow_status_callback(msg):
 
 def joint_control():
     rospy.init_node('joint_control_cui', anonymous=True)
-    
+    rospy.loginfo("init_node done")
+
     # Subscriber to /eyebrow_status
     rospy.Subscriber('/eyebrow_status', String, eyebrow_status_callback)
+    rospy.loginfo("finished setting /eyebrow_status subsriber")
     
     rospy.spin()  # Keep the node running
 
