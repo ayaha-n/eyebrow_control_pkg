@@ -11,7 +11,7 @@ emotion_joints = {
     "happy": [83, 90, 30],
     "sad": [120, 130, 10],
     "angry": [115, 110, 85],
-    "surprised": [83, 90, 30]
+    "surprised": [123, 81, 30]
 }
 
 # Publisher
