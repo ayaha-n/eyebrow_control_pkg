@@ -15,7 +15,7 @@ emotion_joints = {
 }
 
 # Publisher
-pub = rospy.Publisher('/joint_states', JointState, queue_size=10)
+pub = rospy.Publisher('/eye_brow/joint_states', JointState, queue_size=10)
 
 # Callback function to process received /eyebrow_status messages
 def eyebrow_status_callback(msg):
