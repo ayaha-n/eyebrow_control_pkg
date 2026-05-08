@@ -28,6 +28,8 @@ def eyebrow_status_callback(msg):
         js.header.stamp = rospy.Time.now()
         pub.publish(js)
         rospy.loginfo(f'Published joint states for: {emotion}')
+    elif emotion == "":
+        rospy.loginfo("No eyebrow motion")
     else:
         rospy.logwarn(f'Unknown emotion received: {emotion}')
 
